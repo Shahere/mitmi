@@ -28,8 +28,6 @@ export class SocketInteraction extends EventTarget {
   async init(): Promise<string> {
     this.socket = io(serverUrl, {});
 
-    console.warn("WS transport");
-
     return new Promise((resolve, reject) => {
       this.socket.once("connect", () => {
         this._userId = this.socket.id;

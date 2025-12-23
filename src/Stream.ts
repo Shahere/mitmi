@@ -129,8 +129,6 @@ class Stream {
     // Important: cette ligne n'affecte pas l'envoi audio
     this.domElement.muted = true;
     this.domElement.volume = 0;
-
-    console.warn(this.ownerId, this.domElement.volume, this.domElement.muted);
   }
 
   /**
@@ -142,8 +140,6 @@ class Stream {
     // Important: cette ligne n'affecte pas l'envoi audio
     this.domElement.muted = false;
     this.domElement.volume = 1;
-
-    console.warn(this.ownerId, this.domElement.volume, this.domElement.muted);
   }
 }
 

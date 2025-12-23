@@ -56,7 +56,7 @@ export class DeviceManager {
 
   private setListeners() {
     navigator.mediaDevices.addEventListener("devicechange", (event) => {
-      console.warn("Device change");
+      console.log("New device detected : ", event);
     });
   }
 }
