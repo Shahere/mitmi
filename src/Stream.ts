@@ -6,6 +6,9 @@ export interface StreamParams {
   video: boolean;
 }
 
+/**
+ * This class represent a video, camera or screenshare.
+ */
 class Stream {
   mediastream: MediaStream;
   domElement: undefined | HTMLVideoElement;
@@ -17,10 +20,14 @@ class Stream {
   params: StreamParams;
 
   /**
+   * Create a Stream
    *
-   * @param mediastream
-   * @param owner "" => ourself, id instead
+   * @param mediastream - The video input to attach to the stream
+   * @param ownerId - The ownerId of the mediastream
+   * @param ownerName - The owner of the mediastream
+   *
    */
+  //TODO Enlever le fait que ownerid est une string vide si l'owner est soit meme
   constructor(mediastream: MediaStream, ownerId: string, ownerName: string) {
     this.mediastream = mediastream;
     this.ownerId = ownerId;
@@ -29,15 +36,24 @@ class Stream {
     this.params = { audio: true, video: false };
   }
 
+  /**
+   * Check if the stream is local
+   *
+   * @returns - True if it's a localstream, false instead
+   */
   isLocal(): boolean {
     return this.ownerId === "";
   }
 
   /**
-   * Will update lastest camera stream known (for DeviceMananger)
-   * @param video
-   * @param audio
-   * @returns
+   * Get camera input
+   *
+   * @param video - Is video enable ?
+   * @param audio - Is audio enable ?
+   * @param audioDeviceId optional - Use a specific audio device
+   * @param videoDeviceId optional - Use a specific video device
+   *
+   * @returns A stream with your camera.
    */
   static async getCamera(
     video: boolean,
@@ -65,6 +81,11 @@ class Stream {
   }
   static getScreen() {}
 
+  /**
+   * Attach the stream to your DOM
+   *
+   * @param domElement - The HTML element to attach the stream
+   */
   attachToElement(domElement: HTMLVideoElement): void {
     this.domElement = domElement;
     domElement.srcObject = this.mediastream;
@@ -74,6 +95,9 @@ class Stream {
     }
   }
 
+  /**
+   * Detach the stream to your DOM
+   */
   detachToElement(): void {
     if (!this.domElement) return;
     this.domElement.srcObject = null;
@@ -85,6 +109,7 @@ class Stream {
    * If the stream is not published (its yours but not publish, or other ppl stream):
    *  - video will be disabled for you only
    */
+  //TODO do better with mute, ex: all in one method ?
   muteVideo() {
     this.params.video = false;
     if (this.conferencePublish) {
@@ -120,8 +145,7 @@ class Stream {
   }
 
   /**
-   * This function exist to avoir Larsen.
-   * You need to call here when a localstream is started.
+   * Disable local audio
    */
   disableAudio(): void {
     if (!this.domElement) return;
@@ -132,7 +156,7 @@ class Stream {
   }
 
   /**
-   * TODO do better
+   * Enable local audio
    */
   enableAudio(): void {
     if (!this.domElement) return;
