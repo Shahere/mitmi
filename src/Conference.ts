@@ -3,6 +3,9 @@ import { Session } from "./Session";
 import { Stream } from "./Stream";
 import { getCurrentSession } from "./utils";
 
+/**
+ * A Conference is a group of Contact joining eachother
+ */
 class Conference extends EventTarget {
   name: string;
   id: number;
@@ -10,6 +13,11 @@ class Conference extends EventTarget {
   knownContact: Array<Contact | void>;
   session: Session;
 
+  /**
+   *
+   * @param name - Name of the conference
+   * @param session - Your session will be use to interact with the server
+   */
   constructor(name: string, session: Session) {
     super();
     this.session = session;
@@ -21,6 +29,11 @@ class Conference extends EventTarget {
     this.setupListener();
   }
 
+  /**
+   * Call when creating a conference
+   *
+   * @private
+   */
   private setupListener() {
     this.session.socketInteraction.addEventListener("stream", (e) => {
       this.newStream(e);
@@ -33,6 +46,12 @@ class Conference extends EventTarget {
     });
   }
 
+  /**
+   * Publish a steam in the conference only one at the moment
+   *
+   * @param stream - A Stream
+   * @returns void
+   */
   publish(stream: Stream) {
     if (this.knownStreams.includes(stream)) return;
 
@@ -41,6 +60,12 @@ class Conference extends EventTarget {
     this.session.socketInteraction.publish(stream);
   }
 
+  /**
+   * Unpublish stream
+   *
+   * @param stream - A published Stream
+   * @returns void
+   */
   unpublish(stream: Stream) {
     if (!this.knownStreams.includes(stream)) return;
 
@@ -53,15 +78,34 @@ class Conference extends EventTarget {
     this.knownStreams.push(stream);
   }
 
+  /**
+   * Join the conference
+   */
   join() {
     this.session.socketInteraction.register(this.id);
   }
 
+  /**
+   * Leave the conference
+   */
   leave() {
     this.session.socketInteraction.unregister();
   }
+
+  /**
+   * Get all member of the conference
+   *
+   * @todo
+   */
   getMembers() {}
 
+  /**
+   * Call when a new stream is available in the conference
+   *
+   * @param e - event
+   * @returns void
+   * @event
+   */
   private newStream(e: any) {
     if (this.knownStreams.includes(e.detail.stream)) return;
     this.knownStreams.push(e.detail.stream);
@@ -73,6 +117,12 @@ class Conference extends EventTarget {
     this.dispatchEvent(newevent);
   }
 
+  /**
+   * Call when a member leave the conference
+   *
+   * @param e - event
+   * @event
+   */
   private peopleLeave(e: any) {
     const newevent = new CustomEvent("peopleLeave", {
       detail: {
@@ -83,6 +133,12 @@ class Conference extends EventTarget {
     this.dispatchEvent(newevent);
   }
 
+  /**
+   * Call when a member join the conference
+   *
+   * @param e - event
+   * @event
+   */
   private newPeople(e: any) {
     const newevent = new CustomEvent("newPeople", {
       detail: {
