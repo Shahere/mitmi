@@ -21,6 +21,9 @@ interface SocketMessage {
 
 /**
  * Main interaction between socket and server
+ *
+ * @private
+ *
  */
 export class SocketInteraction extends EventTarget {
   private socket!: Socket;
@@ -51,6 +54,12 @@ export class SocketInteraction extends EventTarget {
     return this._userId;
   }
 
+  /**
+   * Publish a Stream into all peers
+   *
+   * @param stream - Stream to publish
+   */
+  //TODO Check to publish multiple stream, ATM => one at the moment
   publish(stream: Stream) {
     this.localStream = stream;
 
@@ -61,6 +70,11 @@ export class SocketInteraction extends EventTarget {
     console.log("[RTC] Stream published to all peers");
   }
 
+  /**
+   * Unbuplish stream into all peers
+   *
+   * @param stream - Stream to unpublish
+   */
   unpublish(stream: Stream) {
     if (this.localStream != stream) throw new Error("this is not your stream");
     this.localStream = undefined;
@@ -73,8 +87,10 @@ export class SocketInteraction extends EventTarget {
   }
 
   /**
+   * Set constraint to you stream ex : muteAudio
+   * Stream have stream.params, use to set constraint on the peer
    *
-   * @param stream Stream have stream.params, use to set constraint on the peer
+   * @param stream - Affected Stream with constraints
    */
   setConstraint(stream: Stream) {
     if (this.localStream != stream) throw new Error("this is not your stream");
@@ -97,6 +113,13 @@ export class SocketInteraction extends EventTarget {
     console.log("[RTC] Set constraint");
   }
 
+  /**
+   * Attach a stream to a peer
+   *
+   * @param pc - PeerConnection to attach this.localstream
+   * @returns
+   */
+  //TODO don't use this.localstream, but a parameter instead ?
   private attachStreamToPeer(pc: RTCPeerConnection) {
     if (!this.localStream) return;
 
@@ -106,6 +129,13 @@ export class SocketInteraction extends EventTarget {
     });
   }
 
+  /**
+   * Detach a stream to a peer
+   *
+   * @param pc - PeerConnection to detach this.localstream
+   * @returns
+   */
+  //TODO don't use this.localstream, but a parameter instead ?
   private removeStreamToPeer(pc: RTCPeerConnection) {
     if (!this.localStream) return;
 
@@ -114,6 +144,13 @@ export class SocketInteraction extends EventTarget {
     });
   }
 
+  /**
+   * Stop sending a specific track
+   *
+   * @param pc - Affected Peerconnection
+   * @param track - Track to disable
+   * @returns
+   */
   private disableTrackToPeer(pc: RTCPeerConnection, track: MediaStreamTrack) {
     if (!this.localStream) return;
 
@@ -126,6 +163,13 @@ export class SocketInteraction extends EventTarget {
     });
   }
 
+  /**
+   * Activate a track into a peer
+   *
+   * @param pc - Affected Peerconnection
+   * @param track - Track to enable
+   * @returns
+   */
   private enableTrackToPeer(pc: RTCPeerConnection, track: MediaStreamTrack) {
     if (!this.localStream) return;
 
@@ -138,6 +182,11 @@ export class SocketInteraction extends EventTarget {
     });
   }
 
+  /**
+   * Send a join message to the server
+   *
+   * @param confId - ID conference
+   */
   register(confId: number) {
     /*if (!this.publishStream) {
       throw new Error("Call publish() before register()");
@@ -153,6 +202,9 @@ export class SocketInteraction extends EventTarget {
     console.log(`[CONF] Join request sent for room ${confId}`);
   }
 
+  /**
+   * Disconnect
+   */
   unregister() {
     //Stop all the track before (release camera and microphone)
     if (this.localStream) {
@@ -168,6 +220,11 @@ export class SocketInteraction extends EventTarget {
     console.log("[CONF] Unregistered and socket closed");
   }
 
+  /**
+   * Set Listeners
+   *
+   * @private
+   */
   private setupSocketListeners() {
     this.socket.on("message", async (message: SocketMessage) => {
       if (!this._confId) return;
