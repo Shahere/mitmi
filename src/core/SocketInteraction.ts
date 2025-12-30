@@ -4,6 +4,9 @@ import { getCurrentSession } from "../utils";
 import { Stream, StreamParams } from "../Stream";
 import { ContactInfo } from "../utils";
 
+/**
+ * Type of message between server and client
+ */
 interface SocketMessage {
   from: ContactInfo;
   target?: string;
@@ -16,6 +19,9 @@ interface SocketMessage {
   };
 }
 
+/**
+ * Main interaction between socket and server
+ */
 export class SocketInteraction extends EventTarget {
   private socket!: Socket;
   private _userId?: string;
