@@ -38,7 +38,13 @@ npm i mitmi
 
 ### Documentation
 
-Will be available in few weeks
+See :
+
+```
+npm run docs
+```
+
+or the folder : ```docs```
 
 <!-- LICENSE -->
 ## License
