@@ -148,6 +148,11 @@ export class SocketInteraction extends EventTarget {
   }
 
   unregister() {
+    //Stop all the track before (release camera and microphone)
+    if (this.localStream) {
+      this.localStream.mediastream.getTracks().forEach((track) => track.stop());
+    }
+
     Object.values(this.peerConnections).forEach((pc) => pc.close());
     this.peerConnections = {};
 
