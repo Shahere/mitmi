@@ -267,6 +267,13 @@ export class SocketInteraction extends EventTarget {
     });
   }
 
+  /**
+   * Create a Peerconnection with the remote contact
+   *
+   * @param from - Peerconnection with this contact
+   * @param initiator - Are you the applicant
+   * @returns
+   */
   private async createPeerConnection(from: ContactInfo, initiator: boolean) {
     const remoteUserId = from.id;
     const remoteUserName = from.name;
@@ -317,6 +324,12 @@ export class SocketInteraction extends EventTarget {
     }
   }
 
+  /**
+   * Event handle the offer
+   *
+   * @param from - Contact who send the offer
+   * @param sdp - Offer
+   */
   private async handleOffer(from: ContactInfo, sdp: RTCSessionDescriptionInit) {
     const remoteUserId = from.id;
     await this.createPeerConnection(from, false);
@@ -345,6 +358,13 @@ export class SocketInteraction extends EventTarget {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Event handle the enswer
+   *
+   * @param from - Contact who send tjhe answer
+   * @param sdp - The answer
+   * @returns
+   */
   private async handleAnswer(
     from: ContactInfo,
     sdp: RTCSessionDescriptionInit
@@ -362,6 +382,13 @@ export class SocketInteraction extends EventTarget {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Event when receive ice candidates
+   *
+   * @param from - Contact
+   * @param candidate - Icecandidate
+   * @returns
+   */
   private async handleIce(from: ContactInfo, candidate: RTCIceCandidate) {
     const remoteUserId = from.id;
     const pc = this.peerConnections[remoteUserId];
@@ -370,11 +397,21 @@ export class SocketInteraction extends EventTarget {
     await pc.addIceCandidate(candidate);
   }
 
+  /**
+   * Event when receive a disconnection message
+   *
+   * @param remoteId - ID that leave
+   */
   private removePeer(remoteId: string) {
     this.peerConnections[remoteId]?.close();
     delete this.peerConnections[remoteId];
   }
 
+  /**
+   * Send a message on the socket
+   *
+   * @param msg - Message to send on the socket
+   */
   private sendMessage(msg: SocketMessage) {
     this.socket.emit("message", msg);
   }
