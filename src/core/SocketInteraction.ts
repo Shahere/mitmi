@@ -2,7 +2,7 @@ import { io, Socket } from "socket.io-client";
 import { serverUrl } from "../constants";
 import { getCurrentSession } from "../utils";
 import { Stream, StreamParams } from "../Stream";
-import { ContactInfo } from "../utils";
+import { ContactInfo } from "../Contact";
 
 /**
  * Type of message between server and client

@@ -49,15 +49,6 @@ function getLocalStream() {
   return localStream;
 }
 
-/**
- * Contact informations
- */
-interface ContactInfo {
-  id: string;
-  name: string;
-}
-
-export { ContactInfo };
 export { setCurrentSession };
 export { getCurrentSession };
 export { setLocalStream };

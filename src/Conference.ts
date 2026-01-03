@@ -95,7 +95,6 @@ class Conference extends EventTarget {
   /**
    * Get all member of the conference
    *
-   * @todo
    */
   getMembers() {}
 

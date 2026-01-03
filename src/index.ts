@@ -4,3 +4,7 @@ export { HelloWorld } from "./HelloWorld";
 export { Stream } from "./Stream";
 export { Conference } from "./Conference";
 export { DeviceManager } from "./DeviceManager";
+
+//Interfaces
+export type { StreamParams } from "./Stream";
+export type { ContactInfo } from "./Contact";

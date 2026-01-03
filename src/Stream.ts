@@ -1,6 +1,9 @@
 import { Conference } from "./Conference";
 import { setLocalStream } from "./utils";
 
+/**
+ * Stream constraints
+ */
 export interface StreamParams {
   audio: boolean;
   video: boolean;

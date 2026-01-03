@@ -1,4 +1,10 @@
-import { ContactInfo } from "./utils";
+/**
+ * Contact informations
+ */
+export interface ContactInfo {
+  id: string;
+  name: string;
+}
 
 /**
  * This class represent a Contact
