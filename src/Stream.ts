@@ -94,7 +94,7 @@ class Stream {
     domElement.srcObject = this.mediastream;
 
     if (this.isLocal()) {
-      this.disableAudio();
+      this.localMuteAudio();
     }
   }
 
@@ -113,44 +113,38 @@ class Stream {
    *  - video will be disabled for you only
    */
   //TODO do better with mute, ex: all in one method ?
-  muteVideo() {
-    this.params.video = false;
+  globalMuteVideo() {
     if (this.conferencePublish) {
-      //your publish stream
+      this.params.video = false;
       this.conferencePublish.session.socketInteraction.setConstraint(this);
     }
-    this.mediastream.getVideoTracks()[0].enabled = false;
   }
 
-  unmuteVideo() {
-    this.params.video = true;
+  globalUnmuteVideo() {
     if (this.conferencePublish) {
-      //your publish stream
+      this.params.video = true;
       this.conferencePublish.session.socketInteraction.setConstraint(this);
     }
-    this.mediastream.getVideoTracks()[0].enabled = true;
   }
 
-  muteAudio(): void {
-    this.params.audio = false;
+  globalMuteAudio(): void {
     if (this.conferencePublish) {
+      this.params.audio = false;
       this.conferencePublish.session.socketInteraction.setConstraint(this);
     }
-    this.mediastream.getAudioTracks()[0].enabled = false;
   }
 
-  unmuteAudio(): void {
-    this.params.audio = true;
+  globalUnmuteAudio(): void {
     if (this.conferencePublish) {
+      this.params.audio = true;
       this.conferencePublish.session.socketInteraction.setConstraint(this);
     }
-    this.mediastream.getAudioTracks()[0].enabled = true;
   }
 
   /**
    * Disable local audio
    */
-  disableAudio(): void {
+  localMuteAudio(): void {
     if (!this.domElement) return;
 
     // Important: cette ligne n'affecte pas l'envoi audio
@@ -161,12 +155,33 @@ class Stream {
   /**
    * Enable local audio
    */
-  enableAudio(): void {
+  localUnmuteAudio(): void {
     if (!this.domElement) return;
 
     // Important: cette ligne n'affecte pas l'envoi audio
     this.domElement.muted = false;
     this.domElement.volume = 1;
+  }
+
+  /**
+   * Disable local video
+   */
+  localMuteVideo(): void {
+    if (!this.domElement) return;
+
+    // Important: cette ligne n'affecte pas l'envoi de la video
+    this.domElement.pause();
+  }
+
+  /**
+   * Enable local video
+   */
+  async localUnmuteVideo(): Promise<void> {
+    if (!this.domElement) return;
+
+    // Important: cette ligne n'affecte pas l'envoi de la video
+
+    await this.domElement.play();
   }
 }
 
