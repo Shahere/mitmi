@@ -116,28 +116,32 @@ class Stream {
   globalMuteVideo() {
     if (this.conferencePublish) {
       this.params.video = false;
-      this.conferencePublish.session.socketInteraction.setConstraint(this);
+      //this.conferencePublish.session.socketInteraction.setConstraint(this);
+      this.mediastream.getVideoTracks()[0].enabled = false;
     }
   }
 
   globalUnmuteVideo() {
     if (this.conferencePublish) {
       this.params.video = true;
-      this.conferencePublish.session.socketInteraction.setConstraint(this);
+      //this.conferencePublish.session.socketInteraction.setConstraint(this);
+      this.mediastream.getVideoTracks()[0].enabled = true;
     }
   }
 
   globalMuteAudio(): void {
     if (this.conferencePublish) {
       this.params.audio = false;
-      this.conferencePublish.session.socketInteraction.setConstraint(this);
+      //this.conferencePublish.session.socketInteraction.setConstraint(this);
+      this.mediastream.getAudioTracks()[0].enabled = false;
     }
   }
 
   globalUnmuteAudio(): void {
     if (this.conferencePublish) {
       this.params.audio = true;
-      this.conferencePublish.session.socketInteraction.setConstraint(this);
+      //this.conferencePublish.session.socketInteraction.setConstraint(this);
+      this.mediastream.getAudioTracks()[0].enabled = true;
     }
   }
 
@@ -147,7 +151,6 @@ class Stream {
   localMuteAudio(): void {
     if (!this.domElement) return;
 
-    // Important: cette ligne n'affecte pas l'envoi audio
     this.domElement.muted = true;
     this.domElement.volume = 0;
   }
@@ -158,7 +161,6 @@ class Stream {
   localUnmuteAudio(): void {
     if (!this.domElement) return;
 
-    // Important: cette ligne n'affecte pas l'envoi audio
     this.domElement.muted = false;
     this.domElement.volume = 1;
   }
@@ -169,7 +171,6 @@ class Stream {
   localMuteVideo(): void {
     if (!this.domElement) return;
 
-    // Important: cette ligne n'affecte pas l'envoi de la video
     this.domElement.pause();
   }
 
@@ -178,8 +179,6 @@ class Stream {
    */
   async localUnmuteVideo(): Promise<void> {
     if (!this.domElement) return;
-
-    // Important: cette ligne n'affecte pas l'envoi de la video
 
     await this.domElement.play();
   }
