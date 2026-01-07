@@ -106,13 +106,6 @@ class Stream {
     this.domElement.srcObject = null;
   }
 
-  /**
-   * If the stream is published (so its yours) :
-   *  - video will be disabled for everyone
-   * If the stream is not published (its yours but not publish, or other ppl stream):
-   *  - video will be disabled for you only
-   */
-  //TODO do better with mute, ex: all in one method ?
   globalMuteVideo() {
     if (this.conferencePublish) {
       this.params.video = false;
