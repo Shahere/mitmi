@@ -271,7 +271,7 @@ export class SocketInteraction extends EventTarget {
    * Create a Peerconnection with the remote contact
    *
    * @param from - Peerconnection with this contact
-   * @param initiator - Are you the applicant
+   * @param initiator - Are you the applicant ? IF yes send an Offer
    * @returns
    */
   private async createPeerConnection(from: ContactInfo, initiator: boolean) {
@@ -335,7 +335,13 @@ export class SocketInteraction extends EventTarget {
     await this.createPeerConnection(from, false);
 
     const pc = this.peerConnections[remoteUserId];
-    await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+
+    try {
+      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    } catch (error) {
+      console.error("Remote decription error : ", error);
+      console.error(pc);
+    }
 
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
@@ -394,7 +400,11 @@ export class SocketInteraction extends EventTarget {
     const pc = this.peerConnections[remoteUserId];
     if (!pc) return;
 
-    await pc.addIceCandidate(candidate);
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch (error) {
+      console.error("Ice error : ", error);
+    }
   }
 
   /**
