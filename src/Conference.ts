@@ -126,9 +126,9 @@ class Conference extends EventTarget {
     const newevent = new CustomEvent("peopleLeave", {
       detail: {
         leaveId: e.detail.leaveId,
+        name: e.detail.name,
       },
     });
-    console.log("[Conf] leave" + e.detail.leaveId);
     this.dispatchEvent(newevent);
   }
 

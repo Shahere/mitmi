@@ -266,13 +266,29 @@ export class SocketInteraction extends EventTarget {
           break;
 
         case "close":
-          console.log(`[RTC] Peer ${from.name} disconnected`);
-          this.removePeer(payload.disconnect!);
-          this.dispatchEvent(
-            new CustomEvent("peopleLeave", {
-              detail: { leaveId: payload.disconnect, name: from.name },
-            })
-          );
+          if (from) {
+            //Normal way
+            console.log(`[RTC] Peer ${from.name} disconnected`);
+            this.removePeer(payload.disconnect!);
+            this.dispatchEvent(
+              new CustomEvent("peopleLeave", {
+                detail: { leaveId: payload.disconnect, name: from.name },
+              })
+            );
+          } else {
+            //Message send by server
+            //Normal way
+            console.log(`[RTC] Someone disconnected`);
+            this.removePeer(payload.disconnect!);
+            this.dispatchEvent(
+              new CustomEvent("peopleLeave", {
+                detail: {
+                  leaveId: payload.disconnect,
+                  name: "Call conference.leave()",
+                },
+              })
+            );
+          }
           break;
       }
     });
