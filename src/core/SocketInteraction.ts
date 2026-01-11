@@ -215,6 +215,15 @@ export class SocketInteraction extends EventTarget {
       this.localStream.mediastream.getTracks().forEach((track) => track.stop());
     }
 
+    const sender = getCurrentSession()?.contact!;
+    this.sendMessage({
+      from: sender.toString(),
+      payload: {
+        action: "close",
+        disconnect: sender.toString().id,
+      },
+    });
+
     Object.values(this.peerConnections).forEach((pc) => pc.close());
     this.peerConnections = {};
 
