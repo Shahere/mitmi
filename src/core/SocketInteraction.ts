@@ -266,14 +266,13 @@ export class SocketInteraction extends EventTarget {
           break;
 
         case "close":
-          console.log(`[RTC] Peer ${JSON.stringify(from)} disconnected`);
+          console.log(`[RTC] Peer ${from.name} disconnected`);
           this.removePeer(payload.disconnect!);
           this.dispatchEvent(
             new CustomEvent("peopleLeave", {
-              detail: { leaveId: payload.disconnect },
+              detail: { leaveId: payload.disconnect, name: from.name },
             })
           );
-          console.log("[Socket] leave : " + from);
           break;
       }
     });
