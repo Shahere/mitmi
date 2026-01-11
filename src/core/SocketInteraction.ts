@@ -33,6 +33,10 @@ export class SocketInteraction extends EventTarget {
   private senders: Array<RTCRtpSender> = [];
 
   private peerConnections: Record<string, RTCPeerConnection> = {};
+  private pendingCandidates: Record<
+    string,
+    Array<RTCIceCandidate | RTCIceCandidateInit>
+  > = {};
 
   async init(): Promise<string> {
     this.socket = io(serverUrl, {});
@@ -233,35 +237,34 @@ export class SocketInteraction extends EventTarget {
 
       switch (payload.action) {
         case "join":
-          console.log(`[RTC] Join received from ${from}`);
+          console.log(`[RTC] Join received from ${from.name}`);
           await this.createPeerConnection(from, true);
           break;
 
         case "offer":
-          console.log(`[RTC] Offer received from ${from}`);
+          console.log(`[RTC] Offer received from ${from.name}`);
           await this.handleOffer(from, payload.sdp!);
           break;
 
         case "answer":
-          console.log(`[RTC] Answer received from ${from}`);
+          console.log(`[RTC] Answer received from ${from.name}`);
           await this.handleAnswer(from, payload.sdp!);
           break;
 
         case "ice":
-          console.log(`[RTC] ICE received from ${from}`);
+          console.log(`[RTC] ICE received from ${from.name}`);
           await this.handleIce(from, payload.candidate!);
           break;
 
         case "close":
-          console.log(`[RTC] Peer ${payload.disconnect} disconnected`);
+          console.log(`[RTC] Peer ${JSON.stringify(from)} disconnected`);
           this.removePeer(payload.disconnect!);
           this.dispatchEvent(
             new CustomEvent("peopleLeave", {
               detail: { leaveId: payload.disconnect },
             })
           );
-          console.log("[Socket] leave" + payload.disconnect);
-
+          console.log("[Socket] leave : " + from);
           break;
       }
     });
@@ -274,10 +277,15 @@ export class SocketInteraction extends EventTarget {
    * @param initiator - Are you the applicant ? IF yes send an Offer
    * @returns
    */
-  private async createPeerConnection(from: ContactInfo, initiator: boolean) {
+  private async createPeerConnection(
+    from: ContactInfo,
+    initiator: boolean
+  ): Promise<RTCPeerConnection> {
     const remoteUserId = from.id;
     const remoteUserName = from.name;
-    if (this.peerConnections[remoteUserId]) return; //existe deja
+    if (this.peerConnections[remoteUserId]) {
+      return this.peerConnections[remoteUserId]; // Already exist
+    }
 
     const pc = new RTCPeerConnection();
     this.peerConnections[remoteUserId] = pc;
@@ -322,6 +330,8 @@ export class SocketInteraction extends EventTarget {
         },
       });
     }
+
+    return pc;
   }
 
   /**
@@ -332,15 +342,14 @@ export class SocketInteraction extends EventTarget {
    */
   private async handleOffer(from: ContactInfo, sdp: RTCSessionDescriptionInit) {
     const remoteUserId = from.id;
-    await this.createPeerConnection(from, false);
+    const pc = await this.createPeerConnection(from, false);
 
-    const pc = this.peerConnections[remoteUserId];
+    //const pc = this.peerConnections[remoteUserId];
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
     } catch (error) {
       console.error("Remote decription error : ", error);
-      console.error(pc);
     }
 
     const answer = await pc.createAnswer();
@@ -355,6 +364,9 @@ export class SocketInteraction extends EventTarget {
         sdp: answer,
       },
     });
+
+    // flush pending ICE candidates received before remoteDescription was set
+    await this.flushPendingCandidates(remoteUserId);
 
     const event: CustomEvent = new CustomEvent("newPeople", {
       detail: {
@@ -380,6 +392,10 @@ export class SocketInteraction extends EventTarget {
     if (!pc) return;
 
     await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+
+    // flush pending ICE candidates received before remoteDescription was set
+    await this.flushPendingCandidates(remoteUserId);
+
     const event: CustomEvent = new CustomEvent("newPeople", {
       detail: {
         contact: from,
@@ -397,14 +413,44 @@ export class SocketInteraction extends EventTarget {
    */
   private async handleIce(from: ContactInfo, candidate: RTCIceCandidate) {
     const remoteUserId = from.id;
+    /*if (!pc) return;
+
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch (error) {
+      console.error("Ice error : ", error);
+      console.error(pc);
+    }*/
     const pc = this.peerConnections[remoteUserId];
-    if (!pc) return;
+    if (!pc || !pc.remoteDescription || !pc.remoteDescription.type) {
+      this.pendingCandidates[remoteUserId] =
+        this.pendingCandidates[remoteUserId] || [];
+      this.pendingCandidates[remoteUserId].push(candidate);
+      return;
+    }
 
     try {
       await pc.addIceCandidate(candidate);
     } catch (error) {
       console.error("Ice error : ", error);
     }
+  }
+
+  private async flushPendingCandidates(remoteUserId: string): Promise<void> {
+    const pc = this.peerConnections[remoteUserId];
+    if (!pc) return; // No remote description attach to this user
+
+    const pendingCandidates = this.pendingCandidates[remoteUserId];
+    if (!pendingCandidates || !pendingCandidates.length) return; // No pending candidates
+
+    for (const pendingCandidate of pendingCandidates) {
+      try {
+        await pc.addIceCandidate(pendingCandidate);
+      } catch (e) {
+        console.error("Error adding pending ICE candidate", e);
+      }
+    }
+    delete this.pendingCandidates[remoteUserId];
   }
 
   /**

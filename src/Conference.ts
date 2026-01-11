@@ -144,7 +144,7 @@ class Conference extends EventTarget {
         contact: e.detail.contact,
       },
     });
-    console.log("[Conf] join" + e.detail.contact.name);
+    console.log("[Conf] join : " + e.detail.contact.name);
     this.dispatchEvent(newevent);
   }
 }
