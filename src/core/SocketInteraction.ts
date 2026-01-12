@@ -19,6 +19,8 @@ interface SocketMessage {
   };
 }
 
+type SendersByStream = Record<string, RTCRtpSender[]>;
+
 /**
  * Main interaction between socket and server
  *
@@ -30,7 +32,7 @@ export class SocketInteraction extends EventTarget {
   private _userId?: string;
   private _confId?: number;
   private localStream?: Stream;
-  private senders: Array<RTCRtpSender> = [];
+  private sendersByStream: SendersByStream = {};
 
   private peerConnections: Record<string, RTCPeerConnection> = {};
   private pendingCandidates: Record<
@@ -84,7 +86,7 @@ export class SocketInteraction extends EventTarget {
     this.localStream = undefined;
 
     Object.values(this.peerConnections).forEach((pc) => {
-      this.removeStreamToPeer(pc);
+      this.removeStreamToPeer(pc, stream);
     });
 
     console.log("[RTC] Unpublish stream");
@@ -100,7 +102,10 @@ export class SocketInteraction extends EventTarget {
   private attachStreamToPeer(pc: RTCPeerConnection, localstream: Stream) {
     localstream.mediastream.getTracks().forEach((track) => {
       const sender = pc.addTrack(track, localstream.mediastream);
-      this.senders.push(sender);
+      if (!this.sendersByStream[localstream.id]) {
+        this.sendersByStream[localstream.id] = [];
+      }
+      this.sendersByStream[localstream.id].push(sender);
     });
   }
 
@@ -111,10 +116,11 @@ export class SocketInteraction extends EventTarget {
    * @returns
    */
   //TODO don't use this.localstream, but a parameter instead ?
-  private removeStreamToPeer(pc: RTCPeerConnection) {
+  private removeStreamToPeer(pc: RTCPeerConnection, localstream: Stream) {
     if (!this.localStream) return;
 
-    this.senders.forEach((sender) => {
+    let senders = this.sendersByStream[localstream.id];
+    senders.forEach((sender) => {
       pc.removeTrack(sender);
     });
   }

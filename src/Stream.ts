@@ -17,7 +17,7 @@ class Stream {
   domElement: undefined | HTMLVideoElement;
   ownerId: string;
   ownerName: string;
-  id: String;
+  id: string;
   //If undefined, its a localstream otherwise the stream is publish
   conferencePublish?: Conference;
   params: StreamParams;
