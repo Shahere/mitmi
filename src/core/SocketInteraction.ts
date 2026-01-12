@@ -91,33 +91,6 @@ export class SocketInteraction extends EventTarget {
   }
 
   /**
-   * Set constraint to you stream ex : muteAudio
-   * Stream have stream.params, use to set constraint on the peer
-   *
-   * @param stream - Affected Stream with constraints
-   */
-  setConstraint(stream: Stream) {
-    if (this.localStream != stream) throw new Error("this is not your stream");
-
-    Object.values(this.peerConnections).forEach((pc) => {
-      if (!stream.params.audio) {
-        // si false on desactive
-        this.disableTrackToPeer(pc, stream.mediastream.getAudioTracks()[0]);
-      } else {
-        // si true on reactive
-        this.enableTrackToPeer(pc, stream.mediastream.getAudioTracks()[0]);
-      }
-      if (!stream.params.video) {
-        this.disableTrackToPeer(pc, stream.mediastream.getVideoTracks()[0]);
-      } else {
-        this.enableTrackToPeer(pc, stream.mediastream.getVideoTracks()[0]);
-      }
-    });
-
-    console.log("[RTC] Set constraint");
-  }
-
-  /**
    * Attach a stream to a peer
    *
    * @param pc - PeerConnection to attach this.localstream
@@ -149,53 +122,11 @@ export class SocketInteraction extends EventTarget {
   }
 
   /**
-   * Stop sending a specific track
-   *
-   * @param pc - Affected Peerconnection
-   * @param track - Track to disable
-   * @returns
-   */
-  private disableTrackToPeer(pc: RTCPeerConnection, track: MediaStreamTrack) {
-    if (!this.localStream) return;
-
-    this.senders.forEach((sender) => {
-      if (sender.track == track) {
-        const transceivers = pc.getTransceivers();
-        const videoTrack = transceivers[1];
-        videoTrack.direction = "recvonly";
-      }
-    });
-  }
-
-  /**
-   * Activate a track into a peer
-   *
-   * @param pc - Affected Peerconnection
-   * @param track - Track to enable
-   * @returns
-   */
-  private enableTrackToPeer(pc: RTCPeerConnection, track: MediaStreamTrack) {
-    if (!this.localStream) return;
-
-    this.senders.forEach((sender) => {
-      if (sender.track == track) {
-        const transceivers = pc.getTransceivers();
-        const videoTrack = transceivers[1];
-        videoTrack.direction = "sendrecv";
-      }
-    });
-  }
-
-  /**
    * Send a join message to the server
    *
    * @param confId - ID conference
    */
   register(confId: number) {
-    /*if (!this.publishStream) {
-      throw new Error("Call publish() before register()");
-    }*/
-
     this._confId = confId;
     const sender = getCurrentSession()?.contact!;
     this.sendMessage({

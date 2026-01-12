@@ -109,7 +109,6 @@ class Stream {
   globalMuteVideo() {
     if (this.conferencePublish) {
       this.params.video = false;
-      //this.conferencePublish.session.socketInteraction.setConstraint(this);
       this.mediastream.getVideoTracks()[0].enabled = false;
     }
   }
@@ -117,7 +116,6 @@ class Stream {
   globalUnmuteVideo() {
     if (this.conferencePublish) {
       this.params.video = true;
-      //this.conferencePublish.session.socketInteraction.setConstraint(this);
       this.mediastream.getVideoTracks()[0].enabled = true;
     }
   }
@@ -125,7 +123,6 @@ class Stream {
   globalMuteAudio(): void {
     if (this.conferencePublish) {
       this.params.audio = false;
-      //this.conferencePublish.session.socketInteraction.setConstraint(this);
       this.mediastream.getAudioTracks()[0].enabled = false;
     }
   }
@@ -133,7 +130,6 @@ class Stream {
   globalUnmuteAudio(): void {
     if (this.conferencePublish) {
       this.params.audio = true;
-      //this.conferencePublish.session.socketInteraction.setConstraint(this);
       this.mediastream.getAudioTracks()[0].enabled = true;
     }
   }
