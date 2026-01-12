@@ -68,7 +68,7 @@ export class SocketInteraction extends EventTarget {
     this.localStream = stream;
 
     Object.values(this.peerConnections).forEach((pc) => {
-      this.attachStreamToPeer(pc);
+      this.attachStreamToPeer(pc, stream);
     });
 
     console.log("[RTC] Stream published to all peers");
@@ -97,11 +97,9 @@ export class SocketInteraction extends EventTarget {
    * @returns
    */
   //TODO don't use this.localstream, but a parameter instead ?
-  private attachStreamToPeer(pc: RTCPeerConnection) {
-    if (!this.localStream) return;
-
-    this.localStream.mediastream.getTracks().forEach((track) => {
-      const sender = pc.addTrack(track, this.localStream!.mediastream);
+  private attachStreamToPeer(pc: RTCPeerConnection, localstream: Stream) {
+    localstream.mediastream.getTracks().forEach((track) => {
+      const sender = pc.addTrack(track, localstream.mediastream);
       this.senders.push(sender);
     });
   }
@@ -246,7 +244,7 @@ export class SocketInteraction extends EventTarget {
     this.peerConnections[remoteUserId] = pc;
 
     if (this.localStream) {
-      this.attachStreamToPeer(pc);
+      this.attachStreamToPeer(pc, this.localStream);
     }
 
     const sender = getCurrentSession()?.contact!;
