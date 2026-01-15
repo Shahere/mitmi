@@ -31,7 +31,7 @@ export class SocketInteraction extends EventTarget {
   private socket!: Socket;
   private _userId?: string;
   private _confId?: number;
-  private localStream?: Stream;
+  private localStreams: Stream[] = [];
   private sendersByStream: SendersByStream = {};
 
   private peerConnections: Record<string, RTCPeerConnection> = {};
@@ -65,9 +65,8 @@ export class SocketInteraction extends EventTarget {
    *
    * @param stream - Stream to publish
    */
-  //TODO Check to publish multiple stream, ATM => one at the moment
   publish(stream: Stream) {
-    this.localStream = stream;
+    this.localStreams.push(stream);
 
     Object.values(this.peerConnections).forEach((pc) => {
       this.attachStreamToPeer(pc, stream);
@@ -82,8 +81,13 @@ export class SocketInteraction extends EventTarget {
    * @param stream - Stream to unpublish
    */
   unpublish(stream: Stream) {
-    if (this.localStream != stream) throw new Error("this is not your stream");
-    this.localStream = undefined;
+    if (this.localStreams.includes(stream))
+      throw new Error("this is not your stream");
+
+    this.localStreams = this.localStreams.splice(
+      this.localStreams.indexOf(stream),
+      1
+    );
 
     Object.values(this.peerConnections).forEach((pc) => {
       this.removeStreamToPeer(pc, stream);
@@ -98,7 +102,6 @@ export class SocketInteraction extends EventTarget {
    * @param pc - PeerConnection to attach this.localstream
    * @returns
    */
-  //TODO don't use this.localstream, but a parameter instead ?
   private attachStreamToPeer(pc: RTCPeerConnection, localstream: Stream) {
     localstream.mediastream.getTracks().forEach((track) => {
       const sender = pc.addTrack(track, localstream.mediastream);
@@ -115,10 +118,7 @@ export class SocketInteraction extends EventTarget {
    * @param pc - PeerConnection to detach this.localstream
    * @returns
    */
-  //TODO don't use this.localstream, but a parameter instead ?
   private removeStreamToPeer(pc: RTCPeerConnection, localstream: Stream) {
-    if (!this.localStream) return;
-
     let senders = this.sendersByStream[localstream.id];
     senders.forEach((sender) => {
       pc.removeTrack(sender);
@@ -146,9 +146,9 @@ export class SocketInteraction extends EventTarget {
    */
   unregister() {
     //Stop all the track before (release camera and microphone)
-    if (this.localStream) {
-      this.localStream.mediastream.getTracks().forEach((track) => track.stop());
-    }
+    this.localStreams.forEach((localStream) => {
+      localStream.mediastream.getTracks().forEach((track) => track.stop());
+    });
 
     const sender = getCurrentSession()?.contact!;
     this.sendMessage({
@@ -249,9 +249,9 @@ export class SocketInteraction extends EventTarget {
     const pc = new RTCPeerConnection();
     this.peerConnections[remoteUserId] = pc;
 
-    if (this.localStream) {
-      this.attachStreamToPeer(pc, this.localStream);
-    }
+    this.localStreams.forEach((localstream) => {
+      this.attachStreamToPeer(pc, localstream);
+    });
 
     const sender = getCurrentSession()?.contact!;
 
