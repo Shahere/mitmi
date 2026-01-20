@@ -30,4 +30,40 @@ describe("Conference", () => {
 
     expect(conf.name).toBe("test");
   });
+
+  it("dispatches peopleLeave event", () => {
+    const session = createMockSession();
+    const conf = new Conference("conf", session);
+
+    const handler = vi.fn();
+    conf.addEventListener("peopleLeave", handler);
+
+    session.socketInteraction.emit("peopleLeave", {
+      leaveId: 42,
+      name: "Alice",
+    });
+
+    expect(handler).toHaveBeenCalledOnce();
+
+    const event = handler.mock.calls[0][0];
+    expect(event.detail.leaveId).toBe(42);
+    expect(event.detail.name).toBe("Alice");
+  });
+
+  it("dispatches newPeople event", () => {
+    const session = createMockSession();
+    const conf = new Conference("conf", session);
+
+    const handler = vi.fn();
+    conf.addEventListener("newPeople", handler);
+
+    const contact = { name: "Noan" };
+
+    session.socketInteraction.emit("newPeople", {
+      contact,
+    });
+    expect(handler).toHaveBeenCalledOnce();
+    const event = handler.mock.calls[0][0];
+    expect(event.detail.contact).toBe(contact);
+  });
 });
