@@ -66,4 +66,21 @@ describe("Conference", () => {
     const event = handler.mock.calls[0][0];
     expect(event.detail.contact).toBe(contact);
   });
+
+  it("dispatches newStream event", () => {
+    const session = createMockSession();
+    const conf = new Conference("conf", session);
+
+    const handler = vi.fn();
+    conf.addEventListener("newstream", handler);
+
+    const stream = { name: "test_stream", id: 8 };
+
+    session.socketInteraction.emit("stream", {
+      stream,
+    });
+    expect(handler).toHaveBeenCalledOnce();
+    const event = handler.mock.calls[0][0];
+    expect(event.detail.stream).toBe(stream);
+  });
 });
