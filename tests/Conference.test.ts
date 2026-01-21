@@ -99,4 +99,21 @@ describe("Conference", () => {
     });
     expect(handler).toBeCalledTimes(0);
   });
+
+  it("leave", () => {
+    const session = createMockSession();
+    const conf = new Conference("conf", session);
+
+    conf.leave();
+    expect(session.socketInteraction.unregister).toHaveBeenCalledOnce();
+  });
+
+  it("join", () => {
+    const session = createMockSession();
+    const conf = new Conference("conf", session);
+
+    conf.join();
+    expect(session.socketInteraction.register).toHaveBeenCalledOnce();
+    expect(session.socketInteraction.register).toBeCalledWith(conf.id);
+  });
 });
