@@ -52,5 +52,23 @@ describe("Conference", () => {
       expect(domElement.srcObject).toBe(stream.mediastream);
       expect(stream.localMuteAudio).toBeCalledTimes(0);
     });
+
+    it("detach to element", () => {
+      const mediaStream = { id: "5" } as MediaStream;
+      const stream = new Stream(mediaStream, "", "");
+      let domElement = {} as HTMLVideoElement;
+      stream.attachToElement(domElement);
+
+      stream.detachToElement();
+      expect(stream.domElement?.srcObject).toBe(null);
+    });
+
+    it("detach to non existing element", () => {
+      const mediaStream = { id: "5" } as MediaStream;
+      const stream = new Stream(mediaStream, "", "");
+
+      stream.detachToElement();
+      expect(stream.domElement).toBe(undefined);
+    });
   });
 });
