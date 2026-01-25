@@ -62,7 +62,7 @@ class Stream {
     video: boolean,
     audio: boolean,
     audioDeviceId?: string,
-    videoDeviceId?: string
+    videoDeviceId?: string,
   ): Promise<Stream> {
     let constraints: any;
     let mediastream: MediaStream;
