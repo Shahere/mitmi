@@ -70,5 +70,13 @@ describe("Conference", () => {
       stream.detachToElement();
       expect(stream.domElement).toBe(undefined);
     });
+
+    it("Global mute video", () => {
+      const mediaStream = { id: "5" } as MediaStream;
+      const stream = new Stream(mediaStream, "", "");
+
+      stream.globalMuteVideo();
+      expect(stream.params.video).toBe(false);
+    });
   });
 });
