@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 import { describe, it, expect } from "vitest";
 import { Conference } from "../src/Conference";
+import { Stream } from "../src/Stream";
 
 function createMockSession() {
   const listeners: Record<string, Function[]> = {};
@@ -115,5 +116,18 @@ describe("Conference", () => {
     conf.join();
     expect(session.socketInteraction.register).toHaveBeenCalledOnce();
     expect(session.socketInteraction.register).toBeCalledWith(conf.id);
+  });
+
+  describe("unpublish", () => {
+    it("Stream is unknown", () => {
+      const session = createMockSession();
+      session.unpublish = vi.fn();
+      const conf = new Conference("conf", session);
+      const stream = {} as Stream;
+
+      conf.unpublish(stream);
+      expect(session.unpublish).toBeCalledTimes(0);
+      expect(conf.knownStreams).toStrictEqual([]);
+    });
   });
 });
