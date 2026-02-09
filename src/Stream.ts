@@ -82,7 +82,18 @@ class Stream {
     setLocalStream(newStream);
     return newStream;
   }
-  static getScreen() {}
+  static async getScreen() {
+    let mediastream: MediaStream;
+    try {
+      mediastream = await navigator.mediaDevices.getDisplayMedia();
+    } catch (e) {
+      const message = "Partage d'écran non disponible.";
+      alert(message);
+      throw message;
+    }
+    let newStream = new Stream(mediastream, "", "");
+    return newStream;
+  }
 
   /**
    * Attach the stream to your DOM
