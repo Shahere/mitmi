@@ -86,7 +86,7 @@ export class SocketInteraction extends EventTarget {
 
     this.localStreams = this.localStreams.splice(
       this.localStreams.indexOf(stream),
-      1
+      1,
     );
 
     Object.values(this.peerConnections).forEach((pc) => {
@@ -208,7 +208,7 @@ export class SocketInteraction extends EventTarget {
             this.dispatchEvent(
               new CustomEvent("peopleLeave", {
                 detail: { leaveId: payload.disconnect, name: from.name },
-              })
+              }),
             );
           } else {
             //Message send by server
@@ -221,7 +221,7 @@ export class SocketInteraction extends EventTarget {
                   leaveId: payload.disconnect,
                   name: "Call conference.leave()",
                 },
-              })
+              }),
             );
           }
           break;
@@ -238,7 +238,7 @@ export class SocketInteraction extends EventTarget {
    */
   private async createPeerConnection(
     from: ContactInfo,
-    initiator: boolean
+    initiator: boolean,
   ): Promise<RTCPeerConnection> {
     const remoteUserId = from.id;
     const remoteUserName = from.name;
@@ -262,7 +262,7 @@ export class SocketInteraction extends EventTarget {
           detail: {
             stream: new Stream(event.streams[0], remoteUserId, remoteUserName),
           },
-        })
+        }),
       );
     };
 
@@ -344,7 +344,7 @@ export class SocketInteraction extends EventTarget {
    */
   private async handleAnswer(
     from: ContactInfo,
-    sdp: RTCSessionDescriptionInit
+    sdp: RTCSessionDescriptionInit,
   ) {
     const remoteUserId = from.id;
     const pc = this.peerConnections[remoteUserId];

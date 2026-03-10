@@ -1,5 +1,5 @@
 import { Conference } from "./Conference";
-import { setLocalStream } from "./utils";
+import { getCurrentSession, setLocalStream } from "./utils";
 
 /**
  * Stream constraints
@@ -45,7 +45,7 @@ class Stream {
    * @returns - True if it's a localstream, false instead
    */
   isLocal(): boolean {
-    return this.ownerId === "";
+    return this.ownerId === "camera" || this.ownerId === "screen";
   }
 
   /**
@@ -78,7 +78,7 @@ class Stream {
       alert(message);
       throw message;
     }
-    let newStream = new Stream(mediastream, "", "");
+    let newStream = new Stream(mediastream, "camera", "");
     setLocalStream(newStream);
     return newStream;
   }
@@ -91,7 +91,7 @@ class Stream {
       alert(message);
       throw message;
     }
-    let newStream = new Stream(mediastream, "", "");
+    let newStream = new Stream(mediastream, "screen", "");
     return newStream;
   }
 
