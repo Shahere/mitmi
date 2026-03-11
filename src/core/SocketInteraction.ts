@@ -33,6 +33,7 @@ export class SocketInteraction extends EventTarget {
   private _confId?: number;
   private localStreams: Stream[] = [];
   private sendersByStream: SendersByStream = {};
+  private screenTranseiver?: RTCRtpTransceiver;
 
   private peerConnections: Record<string, RTCPeerConnection> = {};
   private pendingCandidates: Record<
@@ -65,12 +66,20 @@ export class SocketInteraction extends EventTarget {
    *
    * @param stream - Stream to publish
    */
-  publish(stream: Stream) {
-    this.localStreams.push(stream);
+  async publish(stream: Stream) {
+    this.localStreams.push(stream); // Will be used when a peer is setup
 
     Object.values(this.peerConnections).forEach((pc) => {
       this.attachStreamToPeer(pc, stream);
     });
+
+    /*if (stream.ownerId == "screen") {
+      if (!this.screenTranseiver) return;
+      console.log("Trying to add a screenshare to conference");
+      const sender = this.screenTranseiver.sender;
+      await sender.replaceTrack(stream.mediastream.getVideoTracks()[0]);
+      console.log(sender);
+    }*/
 
     console.log("[RTC] Stream published to all peers");
   }
@@ -249,10 +258,6 @@ export class SocketInteraction extends EventTarget {
     const pc = new RTCPeerConnection();
     this.peerConnections[remoteUserId] = pc;
 
-    this.localStreams.forEach((localstream) => {
-      this.attachStreamToPeer(pc, localstream);
-    });
-
     const sender = getCurrentSession()?.contact!;
 
     pc.ontrack = (event) => {
@@ -275,6 +280,28 @@ export class SocketInteraction extends EventTarget {
         });
       }
     };
+
+    pc.onnegotiationneeded = async () => {
+      console.log("[RTC] Onnegotiationneeded");
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      this.sendMessage({
+        from: sender.toString(),
+        target: remoteUserId,
+        payload: {
+          action: "offer",
+          sdp: offer,
+        },
+      });
+    };
+
+    this.localStreams.forEach((localstream) => {
+      this.attachStreamToPeer(pc, localstream);
+    });
+
+    this.screenTranseiver = pc.addTransceiver("video", {
+      direction: "sendrecv",
+    });
 
     if (initiator) {
       const offer = await pc.createOffer();
