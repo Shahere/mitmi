@@ -12,12 +12,28 @@ describe("Conference", () => {
     expect(stream.id).toBe(ownerId + "_usermedia");
   });
 
-  it("Is local", () => {
+  it("Keywords Camera or Screen are local", () => {
+    const mediaStream = { id: "5" } as MediaStream;
+    const stream = new Stream(mediaStream, "camera", "");
+
+    let isLocal = stream.isLocal();
+    expect(isLocal).toBe(true);
+  });
+
+  it("Keywords Camera or Screen are local", () => {
+    const mediaStream = { id: "5" } as MediaStream;
+    const stream = new Stream(mediaStream, "screen", "");
+
+    let isLocal = stream.isLocal();
+    expect(isLocal).toBe(true);
+  });
+
+  it("Empty is not local", () => {
     const mediaStream = { id: "5" } as MediaStream;
     const stream = new Stream(mediaStream, "", "");
 
     let isLocal = stream.isLocal();
-    expect(isLocal).toBe(true);
+    expect(isLocal).toBe(false);
   });
 
   it("Is not local", () => {
@@ -31,7 +47,7 @@ describe("Conference", () => {
   describe("DOM interaction", () => {
     it("Attach local to element", () => {
       const mediaStream = { id: "5" } as MediaStream;
-      const stream = new Stream(mediaStream, "", "");
+      const stream = new Stream(mediaStream, "camera", "");
       stream.localMuteAudio = vi.fn();
       let domElement = {} as HTMLVideoElement;
 
