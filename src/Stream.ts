@@ -35,7 +35,7 @@ class Stream {
     this.mediastream = mediastream;
     this.ownerId = ownerId;
     this.ownerName = ownerName;
-    this.id = ownerId + "_usermedia";
+    this.id = ownerId + mediastream.id;
     this.params = { audio: true, video: false };
   }
 

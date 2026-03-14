@@ -261,6 +261,15 @@ export class SocketInteraction extends EventTarget {
     const sender = getCurrentSession()?.contact!;
 
     pc.ontrack = (event) => {
+      if (!event.streams[0]) {
+        console.log("[RTC] Empty track receive");
+        return;
+      }
+      console.log(event.streams[0]);
+      if (!event.streams[0].active) {
+        console.log("[RTC] Receive non active stream ??");
+        return;
+      }
       console.log("[RTC] Track received");
       this.dispatchEvent(
         new CustomEvent("stream", {
