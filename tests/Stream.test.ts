@@ -9,7 +9,7 @@ describe("Conference", () => {
     const stream = new Stream(mediaStream, ownerId, ownerId);
 
     expect(stream.mediastream).toBe(mediaStream);
-    expect(stream.id).toBe(ownerId + "_usermedia");
+    expect(stream.id).toBe(ownerId + "5");
   });
 
   it("Keywords Camera or Screen are local", () => {
