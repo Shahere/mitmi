@@ -12,7 +12,7 @@ export interface StreamParams {
 /**
  * This class represent a video, camera or screenshare.
  */
-class Stream {
+class Stream extends EventTarget {
   mediastream: MediaStream;
   domElement: undefined | HTMLVideoElement;
   ownerId: string;
@@ -30,13 +30,21 @@ class Stream {
    * @param ownerName - The owner of the mediastream
    *
    */
-  //TODO Enlever le fait que ownerid est une string vide si l'owner est soit meme
   constructor(mediastream: MediaStream, ownerId: string, ownerName: string) {
+    super();
     this.mediastream = mediastream;
     this.ownerId = ownerId;
     this.ownerName = ownerName;
     this.id = ownerId + mediastream.id;
     this.params = { audio: true, video: false };
+
+    const videoTrack = this.mediastream.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.addEventListener("ended", () => {
+        const newevent = new CustomEvent("ended");
+        this.dispatchEvent(newevent);
+      });
+    }
   }
 
   /**
