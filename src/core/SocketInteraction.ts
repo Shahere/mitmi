@@ -90,7 +90,7 @@ export class SocketInteraction extends EventTarget {
    * @param stream - Stream to unpublish
    */
   unpublish(stream: Stream) {
-    if (this.localStreams.includes(stream))
+    if (!this.localStreams.some((arrayStream) => arrayStream.id == stream.id))
       throw new Error("this is not your stream");
 
     this.localStreams = this.localStreams.splice(
