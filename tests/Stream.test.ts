@@ -1,10 +1,21 @@
-import { vi } from "vitest";
+import { beforeAll, vi } from "vitest";
 import { describe, it, expect } from "vitest";
 import { Stream } from "../src/Stream";
 
 describe("Conference", () => {
+  let mediaStream: MediaStream;
+  beforeAll(() => {
+    let track = {
+      addEventListener: vi.fn(),
+    } as unknown as MediaStreamTrack;
+    mediaStream = {
+      id: "5",
+      getVideoTracks() {
+        return [track, track];
+      },
+    } as MediaStream;
+  });
   it("can be created", () => {
-    const mediaStream = { id: "5" } as MediaStream;
     let ownerId = "test";
     const stream = new Stream(mediaStream, ownerId, ownerId);
 
@@ -13,7 +24,6 @@ describe("Conference", () => {
   });
 
   it("Keywords Camera or Screen are local", () => {
-    const mediaStream = { id: "5" } as MediaStream;
     const stream = new Stream(mediaStream, "camera", "");
 
     let isLocal = stream.isLocal();
@@ -21,7 +31,6 @@ describe("Conference", () => {
   });
 
   it("Keywords Camera or Screen are local", () => {
-    const mediaStream = { id: "5" } as MediaStream;
     const stream = new Stream(mediaStream, "screen", "");
 
     let isLocal = stream.isLocal();
@@ -29,7 +38,6 @@ describe("Conference", () => {
   });
 
   it("Empty is not local", () => {
-    const mediaStream = { id: "5" } as MediaStream;
     const stream = new Stream(mediaStream, "", "");
 
     let isLocal = stream.isLocal();
@@ -37,7 +45,6 @@ describe("Conference", () => {
   });
 
   it("Is not local", () => {
-    const mediaStream = { id: "5" } as MediaStream;
     const stream = new Stream(mediaStream, "test", "test");
 
     let isLocal = stream.isLocal();
@@ -46,7 +53,6 @@ describe("Conference", () => {
 
   describe("DOM interaction", () => {
     it("Attach local to element", () => {
-      const mediaStream = { id: "5" } as MediaStream;
       const stream = new Stream(mediaStream, "camera", "");
       stream.localMuteAudio = vi.fn();
       let domElement = {} as HTMLVideoElement;
@@ -58,7 +64,6 @@ describe("Conference", () => {
     });
 
     it("Attach remote to element", () => {
-      const mediaStream = { id: "5" } as MediaStream;
       const stream = new Stream(mediaStream, "test", "test");
       stream.localMuteAudio = vi.fn();
       let domElement = {} as HTMLVideoElement;
@@ -70,7 +75,6 @@ describe("Conference", () => {
     });
 
     it("detach to element", () => {
-      const mediaStream = { id: "5" } as MediaStream;
       const stream = new Stream(mediaStream, "", "");
       let domElement = {} as HTMLVideoElement;
       stream.attachToElement(domElement);
@@ -80,7 +84,6 @@ describe("Conference", () => {
     });
 
     it("detach to non existing element", () => {
-      const mediaStream = { id: "5" } as MediaStream;
       const stream = new Stream(mediaStream, "", "");
 
       stream.detachToElement();
@@ -88,7 +91,6 @@ describe("Conference", () => {
     });
 
     it("Global mute video", () => {
-      const mediaStream = { id: "5" } as MediaStream;
       const stream = new Stream(mediaStream, "", "");
 
       stream.globalMuteVideo();
