@@ -90,6 +90,13 @@ class Stream extends EventTarget {
     setLocalStream(newStream);
     return newStream;
   }
+
+  /**
+   * Get screen input
+   * BETA
+   *
+   * @returns A stream with your camera.
+   */
   static async getScreen() {
     let mediastream: MediaStream;
     try {

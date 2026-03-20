@@ -33,7 +33,6 @@ export class SocketInteraction extends EventTarget {
   private _confId?: number;
   private localStreams: Stream[] = [];
   private sendersByStream: SendersByStream = {};
-  private screenTranseiver?: RTCRtpTransceiver;
 
   private peerConnections: Record<string, RTCPeerConnection> = {};
   private pendingCandidates: Record<
@@ -270,7 +269,17 @@ export class SocketInteraction extends EventTarget {
         console.log("[RTC] Receive non active stream ??");
         return;
       }
-      console.log("[RTC] Track received");
+      console.log("[RTC] Stream received");
+
+      event.streams[0].onremovetrack = ({ track }) => {
+        console.log(`${track.kind} track was removed.`);
+        if (!event.streams[0].getTracks().length) {
+          console.log(
+            `stream ${event.streams[0].id} emptied (effectively removed).`,
+          );
+        }
+      };
+
       this.dispatchEvent(
         new CustomEvent("stream", {
           detail: {
@@ -306,10 +315,6 @@ export class SocketInteraction extends EventTarget {
 
     this.localStreams.forEach((localstream) => {
       this.attachStreamToPeer(pc, localstream);
-    });
-
-    this.screenTranseiver = pc.addTransceiver("video", {
-      direction: "sendrecv",
     });
 
     if (initiator) {
