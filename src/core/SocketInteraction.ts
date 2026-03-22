@@ -272,12 +272,7 @@ export class SocketInteraction extends EventTarget {
       console.log("[RTC] Stream received");
 
       event.streams[0].onremovetrack = ({ track }) => {
-        console.log(`${track.kind} track was removed.`);
-        if (!event.streams[0].getTracks().length) {
-          console.log(
-            `stream ${event.streams[0].id} emptied (effectively removed).`,
-          );
-        }
+        this.dispatchEvent(new CustomEvent("ended"));
       };
 
       this.dispatchEvent(
