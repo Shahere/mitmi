@@ -30,13 +30,19 @@ class Stream extends EventTarget {
    * @param ownerName - The owner of the mediastream
    *
    */
-  constructor(mediastream: MediaStream, ownerId: string, ownerName: string) {
+  constructor(
+    mediastream: MediaStream,
+    ownerId: string,
+    ownerName: string,
+    audio: boolean = true,
+    video: boolean = true,
+  ) {
     super();
     this.mediastream = mediastream;
     this.ownerId = ownerId;
     this.ownerName = ownerName;
     this.id = ownerId + mediastream.id;
-    this.params = { audio: true, video: false };
+    this.params = { audio: audio, video: video };
 
     const videoTrack = this.mediastream.getVideoTracks()[0];
     if (videoTrack) {
@@ -86,7 +92,7 @@ class Stream extends EventTarget {
       alert(message);
       throw message;
     }
-    let newStream = new Stream(mediastream, "camera", "");
+    let newStream = new Stream(mediastream, "camera", "", audio, video);
     setLocalStream(newStream);
     return newStream;
   }
