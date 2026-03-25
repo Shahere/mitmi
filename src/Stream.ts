@@ -1,5 +1,4 @@
 import { Conference } from "./Conference";
-import { getCurrentSession, setLocalStream } from "./utils";
 
 /**
  * Stream constraints
@@ -93,7 +92,6 @@ class Stream extends EventTarget {
       throw message;
     }
     let newStream = new Stream(mediastream, "camera", "", audio, video);
-    setLocalStream(newStream);
     return newStream;
   }
 

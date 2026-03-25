@@ -37,20 +37,6 @@ function getCurrentSession() {
   return currentSession;
 }
 
-//TODO Useless ?
-/**
- * Function for localstream
- */
-let localStream: Stream | undefined = undefined;
-function setLocalStream(newStream: undefined | Stream) {
-  localStream = newStream;
-}
-function getLocalStream() {
-  return localStream;
-}
-
 export { setCurrentSession };
 export { getCurrentSession };
-export { setLocalStream };
-export { getLocalStream };
 export { uidGenerator };
