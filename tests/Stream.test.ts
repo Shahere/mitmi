@@ -1,6 +1,7 @@
 import { beforeAll, vi } from "vitest";
 import { describe, it, expect } from "vitest";
 import { Stream } from "../src/Stream";
+import { Conference } from "../src/Conference";
 
 describe("Conference", () => {
   let mediaStream: MediaStream;
@@ -92,6 +93,7 @@ describe("Conference", () => {
 
     it("Global mute video", () => {
       const stream = new Stream(mediaStream, "", "");
+      stream.conferencePublish = {} as Conference;
 
       stream.globalMuteVideo();
       expect(stream.params.video).toBe(false);
