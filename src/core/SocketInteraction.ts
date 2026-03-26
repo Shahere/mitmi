@@ -272,7 +272,11 @@ export class SocketInteraction extends EventTarget {
       console.log("[RTC] Stream received");
 
       event.streams[0].onremovetrack = ({ track }) => {
-        this.dispatchEvent(new CustomEvent("ended"));
+        this.dispatchEvent(
+          new CustomEvent("streamEnded", {
+            detail: { stream: event.streams[0], remoteUserId: remoteUserId },
+          }),
+        );
       };
 
       this.dispatchEvent(

@@ -44,6 +44,20 @@ class Conference extends EventTarget {
     this.session.socketInteraction.addEventListener("newPeople", (e) => {
       this.newPeople(e);
     });
+    this.session.socketInteraction.addEventListener("streamEnded", (e) => {
+      if (this.knownStreams.length < 0) return;
+      const streamToRemove = this.knownStreams.filter((stream) => {
+        if (!stream) return;
+        return (
+          stream.id ==
+          (<CustomEvent>e).detail.remoteUserId +
+            (<CustomEvent>e).detail.stream.id
+        );
+      });
+      if (streamToRemove) {
+        this.streamEnded(streamToRemove[0]!);
+      }
+    });
   }
 
   /**
@@ -145,6 +159,22 @@ class Conference extends EventTarget {
       },
     });
     console.log("[Conf] join : " + e.detail.contact.name);
+    this.dispatchEvent(newevent);
+  }
+
+  /**
+   * Call when a stream in conference has ended
+   *
+   * @param e - event
+   * @event
+   */
+  private streamEnded(streamEnd: Stream) {
+    const newevent = new CustomEvent("streamEnded", {
+      detail: {
+        stream: streamEnd,
+      },
+    });
+    console.log("[Conf] stream ended : " + streamEnd);
     this.dispatchEvent(newevent);
   }
 }
