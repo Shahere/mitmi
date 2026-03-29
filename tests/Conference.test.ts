@@ -2,6 +2,7 @@ import { vi } from "vitest";
 import { describe, it, expect } from "vitest";
 import { Conference } from "../src/Conference";
 import { Stream } from "../src/Stream";
+import { Contact } from "../src/Contact";
 
 function createMockSession() {
   const listeners: Record<string, Function[]> = {};
@@ -34,21 +35,22 @@ describe("Conference", () => {
 
   it("dispatches peopleLeave event", () => {
     const session = createMockSession();
+    const contact = new Contact("42", "Alice");
     const conf = new Conference("conf", session);
+    conf.knownContact.push(contact);
 
     const handler = vi.fn();
     conf.addEventListener("peopleLeave", handler);
 
-    session.socketInteraction.emit("peopleLeave", {
-      leaveId: 42,
-      name: "Alice",
-    });
+    session.socketInteraction.emit("peopleLeave", contact);
 
-    expect(handler).toHaveBeenCalledOnce();
+    setTimeout(() => {
+      expect(handler).toHaveBeenCalledOnce();
 
-    const event = handler.mock.calls[0][0];
-    expect(event.detail.leaveId).toBe(42);
-    expect(event.detail.name).toBe("Alice");
+      const event = handler.mock.calls[0][0];
+      expect(event.detail.leaveId).toBe(42);
+      expect(event.detail.name).toBe("Alice");
+    }, 100);
   });
 
   it("dispatches newPeople event", () => {

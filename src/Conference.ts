@@ -9,8 +9,8 @@ import { getCurrentSession } from "./utils";
 class Conference extends EventTarget {
   name: string;
   id: number;
-  knownStreams: Array<Stream | void>;
-  knownContact: Array<Contact | void>;
+  knownStreams: Array<Stream>;
+  knownContact: Array<Contact>;
   session: Session;
 
   /**
@@ -109,8 +109,11 @@ class Conference extends EventTarget {
   /**
    * Get all member of the conference
    *
+   * @returns List of contact active in the conference
    */
-  getMembers() {}
+  getMembers(): Contact[] {
+    return this.knownContact;
+  }
 
   /**
    * Call when a new stream is available in the conference
@@ -137,13 +140,21 @@ class Conference extends EventTarget {
    * @event
    */
   private peopleLeave(e: any) {
+    const leaveContactId = e.detail.leaveId;
     const newevent = new CustomEvent("peopleLeave", {
       detail: {
         leaveId: e.detail.leaveId,
         name: e.detail.name,
       },
     });
-    this.dispatchEvent(newevent);
+    const contactToRemove = this.knownContact.filter(
+      (contact) => contact.id === leaveContactId,
+    );
+    const index = this.knownContact.indexOf(contactToRemove[0]);
+    if (index > -1) {
+      this.knownContact.splice(index, 1);
+      this.dispatchEvent(newevent);
+    }
   }
 
   /**
@@ -158,6 +169,7 @@ class Conference extends EventTarget {
         contact: e.detail.contact,
       },
     });
+    this.knownContact.push(e.detail.contact);
     console.log("[Conf] join : " + e.detail.contact.name);
     this.dispatchEvent(newevent);
   }
