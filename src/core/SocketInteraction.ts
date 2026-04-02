@@ -101,6 +101,11 @@ export class SocketInteraction extends EventTarget {
       this.removeStreamToPeer(pc, stream);
     });
 
+    const tracks = stream.mediastream.getTracks();
+    tracks.forEach((track) => {
+      track.stop();
+    });
+
     console.log("[RTC] Unpublish stream");
   }
 
