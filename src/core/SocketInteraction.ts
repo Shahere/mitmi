@@ -72,15 +72,16 @@ export class SocketInteraction extends EventTarget {
       this.attachStreamToPeer(pc, stream);
     });
 
-    /*if (stream.ownerId == "screen") {
-      if (!this.screenTranseiver) return;
-      console.log("Trying to add a screenshare to conference");
-      const sender = this.screenTranseiver.sender;
-      await sender.replaceTrack(stream.mediastream.getVideoTracks()[0]);
-      console.log(sender);
-    }*/
-
     console.log("[RTC] Stream published to all peers");
+  }
+
+  async replaceCameraStream(newStream: Stream) {
+    const streamToDelete = this.localStreams.find(
+      (stream) => stream.ownerId === "camera",
+    );
+    if (!streamToDelete) return;
+    await this.unpublish(streamToDelete);
+    await this.publish(newStream);
   }
 
   /**

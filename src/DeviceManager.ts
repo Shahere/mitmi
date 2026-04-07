@@ -1,4 +1,5 @@
 import { Stream } from "./Stream";
+import { getCurrentSession } from "./utils";
 
 export class DeviceManager {
   private static _instance: DeviceManager;
@@ -20,7 +21,7 @@ export class DeviceManager {
   }
 
   async getAvailableDevices(
-    kind: "videoinput" | "audioinput"
+    kind: "videoinput" | "audioinput",
   ): Promise<MediaDeviceInfo[]> {
     const devices = await navigator.mediaDevices.enumerateDevices();
     return devices.filter((device) => device.kind === kind);
@@ -39,8 +40,9 @@ export class DeviceManager {
       true,
       true,
       newAudioDevice.deviceId,
-      undefined
+      undefined,
     );
+    this.changePublishedStream(newStream);
     return newStream;
   }
 
@@ -49,9 +51,15 @@ export class DeviceManager {
       true,
       true,
       undefined,
-      newVideoDevice.deviceId
+      newVideoDevice.deviceId,
     );
+    this.changePublishedStream(newStream);
     return newStream;
+  }
+
+  private changePublishedStream(newStream: Stream) {
+    const session = getCurrentSession();
+    session?.socketInteraction.replaceCameraStream(newStream);
   }
 
   private setListeners() {
