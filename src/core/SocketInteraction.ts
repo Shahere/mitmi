@@ -89,14 +89,14 @@ export class SocketInteraction extends EventTarget {
    *
    * @param stream - Stream to unpublish
    */
-  unpublish(stream: Stream) {
+  async unpublish(stream: Stream) {
     if (!this.localStreams.some((arrayStream) => arrayStream.id == stream.id))
       throw new Error("this is not your stream");
 
-    this.localStreams = this.localStreams.splice(
-      this.localStreams.indexOf(stream),
-      1,
-    );
+    const streamIdx = this.localStreams.indexOf(stream);
+    if (streamIdx !== -1) {
+      this.localStreams.splice(streamIdx, 1);
+    }
 
     Object.values(this.peerConnections).forEach((pc) => {
       this.removeStreamToPeer(pc, stream);
@@ -137,6 +137,7 @@ export class SocketInteraction extends EventTarget {
     senders.forEach((sender) => {
       pc.removeTrack(sender);
     });
+    delete this.sendersByStream[localstream.id];
   }
 
   /**
