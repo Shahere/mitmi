@@ -178,6 +178,7 @@ export class SocketInteraction extends EventTarget {
     this.peerConnections = {};
 
     this._confId = undefined;
+    this.socket.off("message");
     this.socket.disconnect();
 
     console.log("[CONF] Unregistered and socket closed");
