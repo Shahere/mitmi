@@ -42,7 +42,7 @@ export class DeviceManager {
       newAudioDevice.deviceId,
       undefined,
     );
-    this.changePublishedStream(newStream);
+    this.changePublishedCameraStream(newStream);
     return newStream;
   }
 
@@ -53,11 +53,16 @@ export class DeviceManager {
       undefined,
       newVideoDevice.deviceId,
     );
-    this.changePublishedStream(newStream);
+    this.changePublishedCameraStream(newStream);
     return newStream;
   }
 
-  private changePublishedStream(newStream: Stream) {
+  /**
+   * Replace the current CAMERA stream to the specified stream
+   *
+   * @param newStream New stream to replace
+   */
+  private changePublishedCameraStream(newStream: Stream) {
     const session = getCurrentSession();
     session?.socketInteraction.replaceCameraStream(newStream);
   }
