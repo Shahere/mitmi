@@ -35,6 +35,11 @@ export class DeviceManager {
     };
   }
 
+  /**
+   * Change and ask the use for a new microphone
+   * @param newAudioDevice Audio device to use
+   * @returns
+   */
   async changeAudioDevice(newAudioDevice: MediaDeviceInfo) {
     let newStream = await Stream.getCamera(
       true,
@@ -46,6 +51,11 @@ export class DeviceManager {
     return newStream;
   }
 
+  /**
+   * Change and ask the user for a new camera
+   * @param newVideoDevice Video device to use
+   * @returns
+   */
   async changeVideoDevice(newVideoDevice: MediaDeviceInfo) {
     let newStream = await Stream.getCamera(
       true,
