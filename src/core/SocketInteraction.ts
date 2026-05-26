@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { serverUrl } from "../constants";
+import { serverUrl, stunServers } from "../constants";
 import { getCurrentSession } from "../utils";
 import { Stream, StreamParams } from "../Stream";
 import { ContactInfo } from "../Contact";
@@ -262,7 +262,7 @@ export class SocketInteraction extends EventTarget {
       return this.peerConnections[remoteUserId]; // Already exist
     }
 
-    const pc = new RTCPeerConnection();
+    const pc = new RTCPeerConnection(stunServers);
     this.peerConnections[remoteUserId] = pc;
 
     const sender = getCurrentSession()?.contact!;
