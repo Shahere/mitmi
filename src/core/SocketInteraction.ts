@@ -1,6 +1,5 @@
-import { io, Socket } from "socket.io-client";
 import { serverUrl, stunServers } from "../constants";
-import { getCurrentSession } from "../utils";
+import { getCurrentSession, uidGenerator } from "../utils";
 import { Stream, StreamParams } from "../Stream";
 import { ContactInfo } from "../Contact";
 
@@ -28,7 +27,7 @@ type SendersByStream = Record<string, RTCRtpSender[]>;
  *
  */
 export class SocketInteraction extends EventTarget {
-  private socket!: Socket;
+  private socket!: WebSocket;
   private _userId?: string;
   private _confId?: number;
   private localStreams: Stream[] = [];
@@ -41,17 +40,16 @@ export class SocketInteraction extends EventTarget {
   > = {};
 
   async init(): Promise<string> {
-    this.socket = io(serverUrl, {});
+    this.socket = new WebSocket(serverUrl);
 
     return new Promise((resolve, reject) => {
-      this.socket.once("connect", () => {
-        this._userId = this.socket.id;
+      this.socket.onopen = (event) => {
+        this._userId = uidGenerator();
         this.setupSocketListeners();
-        resolve(this._userId!);
-      });
-
-      this.socket.once("connect_error", reject);
-      this.socket.once("error", reject);
+        resolve(this._userId);
+      };
+      this.socket.onerror = (event) => reject;
+      this.socket.close = (event) => reject;
     });
   }
 
@@ -178,8 +176,7 @@ export class SocketInteraction extends EventTarget {
     this.peerConnections = {};
 
     this._confId = undefined;
-    this.socket.off("message");
-    this.socket.disconnect();
+    this.socket.close();
 
     console.log("[CONF] Unregistered and socket closed");
   }
@@ -190,10 +187,13 @@ export class SocketInteraction extends EventTarget {
    * @private
    */
   private setupSocketListeners() {
-    this.socket.on("message", async (message: SocketMessage) => {
-      if (!this._confId) return;
+    this.socket.onmessage = async (event: MessageEvent) => {
+      const message = JSON.parse(event.data);
 
+      if (!this._confId) return;
       const { from, payload } = message;
+      console.log(message);
+      console.log("PAYLOAD : " + payload);
 
       switch (payload.action) {
         case "join":
@@ -242,7 +242,7 @@ export class SocketInteraction extends EventTarget {
           }
           break;
       }
-    });
+    };
   }
 
   /**
@@ -475,7 +475,7 @@ export class SocketInteraction extends EventTarget {
    *
    * @param msg - Message to send on the socket
    */
-  private sendMessage(msg: SocketMessage) {
-    this.socket.emit("message", msg);
+  private sendMessage(msg: Object) {
+    this.socket.send(JSON.stringify(msg));
   }
 }

@@ -6,7 +6,7 @@ import { Stream } from "./Stream";
  *
  * @returns - A random string format, ex: de0b1c44-b42e-c617-bcc2-14586c5fffe2
  */
-function uidGenerator(): String {
+function uidGenerator(): string {
   var S4 = function () {
     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   };
