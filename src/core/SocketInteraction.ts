@@ -192,8 +192,6 @@ export class SocketInteraction extends EventTarget {
 
       if (!this._confId) return;
       const { from, payload } = message;
-      console.log(message);
-      console.log("PAYLOAD : " + payload);
 
       switch (payload.action) {
         case "join":
