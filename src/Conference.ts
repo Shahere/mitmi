@@ -8,7 +8,6 @@ import { getCurrentSession } from "./utils";
  */
 class Conference extends EventTarget {
   name: string;
-  id: number;
   knownStreams: Array<Stream>;
   knownContact: Array<Contact>;
   session: Session;
@@ -23,7 +22,6 @@ class Conference extends EventTarget {
     this.session = session;
 
     this.name = name;
-    this.id = 2; //TODO change later for a random
     this.knownStreams = [];
     this.knownContact = [];
     this.setupListener();
@@ -96,7 +94,7 @@ class Conference extends EventTarget {
    * Join the conference
    */
   join() {
-    this.session.socketInteraction.register(this.id);
+    this.session.socketInteraction.register(this.name);
   }
 
   /**

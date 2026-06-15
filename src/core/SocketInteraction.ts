@@ -11,6 +11,7 @@ interface SocketMessage {
   target?: string;
   payload: {
     action: "join" | "offer" | "answer" | "ice" | "close";
+    hubname?: string;
     sdp?: RTCSessionDescriptionInit;
     candidate?: RTCIceCandidate;
     message?: string;
@@ -29,7 +30,7 @@ type SendersByStream = Record<string, RTCRtpSender[]>;
 export class SocketInteraction extends EventTarget {
   private socket!: WebSocket;
   private _userId?: string;
-  private _confId?: number;
+  private _confName?: string;
   private localStreams: Stream[] = [];
   private sendersByStream: SendersByStream = {};
 
@@ -141,17 +142,18 @@ export class SocketInteraction extends EventTarget {
   /**
    * Send a join message to the server
    *
-   * @param confId - ID conference
+   * @param confName - ID conference
    */
-  register(confId: number) {
-    this._confId = confId;
+  register(confName: string) {
+    this._confName = confName;
     const sender = getCurrentSession()?.contact!;
-    this.sendMessage({
+    const message: SocketMessage = {
       from: sender.toString(),
-      payload: { action: "join" },
-    });
+      payload: { action: "join", hubname: confName },
+    };
+    this.sendMessage(message);
 
-    console.log(`[CONF] Join request sent for room ${confId}`);
+    console.log(`[CONF] Join request sent for room ${confName}`);
   }
 
   /**
@@ -175,7 +177,7 @@ export class SocketInteraction extends EventTarget {
     Object.values(this.peerConnections).forEach((pc) => pc.close());
     this.peerConnections = {};
 
-    this._confId = undefined;
+    this._confName = undefined;
     this.socket.close();
 
     console.log("[CONF] Unregistered and socket closed");
@@ -190,7 +192,7 @@ export class SocketInteraction extends EventTarget {
     this.socket.onmessage = async (event: MessageEvent) => {
       const message = JSON.parse(event.data);
 
-      if (!this._confId) return;
+      if (!this._confName) return;
       const { from, payload } = message;
 
       switch (payload.action) {
