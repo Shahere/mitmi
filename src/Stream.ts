@@ -1,4 +1,5 @@
 import { Conference } from "./Conference";
+import { DeviceManager } from "./DeviceManager";
 
 /**
  * Stream constraints
@@ -91,6 +92,17 @@ class Stream extends EventTarget {
       alert(message);
       throw message;
     }
+    const deviceManager = DeviceManager.createInstance();
+    const tracks = mediastream.getTracks();
+    tracks.forEach((track) => {
+      if (track.kind == "audio") {
+        deviceManager.currentAudioInput = track.getSettings().deviceId;
+      }
+      if (track.kind == "video") {
+        deviceManager.currentVideoInput = track.getSettings().deviceId;
+      }
+    });
+
     let newStream = new Stream(mediastream, "camera", "", audio, video);
     return newStream;
   }
@@ -134,6 +146,10 @@ class Stream extends EventTarget {
   detachToElement(): void {
     if (!this.domElement) return;
     this.domElement.srcObject = null;
+  }
+
+  stop() {
+    this.mediastream.getTracks().forEach((track) => track.stop());
   }
 
   globalMuteVideo() {
