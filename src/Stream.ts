@@ -153,31 +153,23 @@ class Stream extends EventTarget {
   }
 
   globalMuteVideo() {
-    if (this.conferencePublish) {
-      this.params.video = false;
-      this.mediastream.getVideoTracks()[0].enabled = false;
-    }
+    this.params.video = false;
+    this.mediastream.getVideoTracks()[0].enabled = false;
   }
 
   globalUnmuteVideo() {
-    if (this.conferencePublish) {
-      this.params.video = true;
-      this.mediastream.getVideoTracks()[0].enabled = true;
-    }
+    this.params.video = true;
+    this.mediastream.getVideoTracks()[0].enabled = true;
   }
 
   globalMuteAudio(): void {
-    if (this.conferencePublish) {
-      this.params.audio = false;
-      this.mediastream.getAudioTracks()[0].enabled = false;
-    }
+    this.params.audio = false;
+    this.mediastream.getAudioTracks()[0].enabled = false;
   }
 
   globalUnmuteAudio(): void {
-    if (this.conferencePublish) {
-      this.params.audio = true;
-      this.mediastream.getAudioTracks()[0].enabled = true;
-    }
+    this.params.audio = true;
+    this.mediastream.getAudioTracks()[0].enabled = true;
   }
 
   /**
